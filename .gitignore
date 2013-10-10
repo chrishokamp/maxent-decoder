@@ -1,3 +1,8 @@
+#vim
+*.swo
+*.swp
+.jshintrc
+
 *.py[cod]
 
 # C extensions
