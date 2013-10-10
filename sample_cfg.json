@@ -1,0 +1,37 @@
+{
+    "nonterminals": ["S","NP","Nominal","VP", "PP", "Det", "Noun", "Verb", "Pronoun", "Proper-noun", "Aux", "Preposition"],
+    "rules": {
+        "S":  [
+            ["NP", "VP"],
+            ["Aux", "NP", "VP"],
+            ["VP"]
+        ],
+        "NP": [
+            ["Pronoun"],
+            ["Proper-noun"],
+            ["Det", "Nominal"]
+        ],
+        "Nominal": [
+            ["Noun"],
+            ["Nominal", "Noun"],
+            ["Nominal", "PP"]
+        ],
+        "VP": [
+             ["Verb"],
+             ["Verb", "NP"],
+             ["Verb", "NP", "PP"],
+             ["Verb", "PP"],
+             ["VP", "PP"]
+        ],
+        "PP": ["Preposition", "NP"]
+    },
+    "lexicon": {
+        "Det": ["that", "this", "a"],
+        "Noun": ["book", "flight", "meal","money"],
+        "Verb": ["book", "include", "prefer"],
+        "Pronoun": ["I", "she", "me"],
+        "Proper-Noun": ["Houston", "NWA"],
+        "Aux": ["does"],
+        "Preposition": ["from", "to", "on", "near", "through"]
+    }
+}

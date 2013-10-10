@@ -1,0 +1,48 @@
+{
+    "nonterminals": ["S","X1","X2","NP","Nominal","VP", "PP", "Det", "Noun", "Verb", "Pronoun", "Proper-noun", "Aux", "Preposition"],
+    "rules": {
+        "S":  [
+            ["NP", "VP"],
+            ["X1", "VP"],
+            ["Verb", "NP"],
+            ["X2", "PP"],
+            ["Verb", "PP"],
+            ["VP", "PP"]
+        ],
+        "X1": [
+            ["Aux", "NP"]
+        ],
+        "X2": [
+            ["Verb", "NP"]
+        ],
+        "NP": [
+            ["Det", "Nominal"]
+        ],
+        "Nominal": [
+            ["Nominal", "Noun"],
+            ["Nominal", "PP"]
+        ],
+        "VP": [
+             ["Verb", "NP"],
+             ["X2", "PP"],
+             ["Verb", "PP"],
+             ["VP", "PP"]
+        ],
+        "PP": [
+            ["Preposition", "NP"]
+        ]
+    },
+    "lexicon": {
+        "Det": ["that", "this", "a","the"],
+        "Noun": ["book", "flight", "meal","money"],
+        "Verb": ["book", "include", "prefer","landed"],
+        "Pronoun": ["I", "she", "me"],
+        "Proper-Noun": ["houston", "twa"],
+        "Aux": ["does"],
+        "Preposition": ["from", "to", "on", "near", "through"],
+        "S": ["book", "include", "prefer"],
+        "NP": ["I", "she", "me", "twa", "houston"],
+        "Nominal": ["book", "flight", "meal", "money"],
+        "VP": ["book", "include", "prefer","landed"]
+    }
+}
