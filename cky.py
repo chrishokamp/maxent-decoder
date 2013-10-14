@@ -32,11 +32,14 @@ class CKY:
                         C = [nonterm["label"] for nonterm in parse_table[k,j]]
                         pairs = list(itertools.product(B,C))
                         new_derivations = []
+
                         for pair in pairs:
                             try:
                                 nonterms = rule_map[pair]
                                 for nonterm in nonterms:
-                                    new_derivations.append({"label":nonterm, "source":((i,k), (k,j))})
+                                    left_symbol = pair[0]
+                                    right_symbol = pair[1]
+                                    new_derivations.append( {"label":nonterm, "source":{"index": ((i,k), (k,j)), "L_sym": left_symbol, "R_sym": right_symbol} })
                             except KeyError:
                                 pass
                         union = parse_table[i,j] + new_derivations
