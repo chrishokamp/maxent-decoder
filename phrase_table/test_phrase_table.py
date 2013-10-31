@@ -4,6 +4,7 @@
 import unittest
 import json as json
 from collections import defaultdict
+import pickle
 import ipdb as ipdb
 
 import Phrase_Table
@@ -14,7 +15,8 @@ class TestPhraseTable(unittest.TestCase):
     # setup -- create a new CKY instance
     def setUp(self):
         lines = [line.strip() for line in open('tiny_phrase_table', 'r').readlines()]
-        field_names = ["target", "scores", "alignment", "counts"]
+        # the structure of the fields is: ["target", "scores", "alignment", "counts"]
+        field_names = ["target","f|e","lex_f|e","e|f", "lex_e|f"]
         self.PT = Phrase_Table.Phrase_Table(lines, field_names)
         #print self.PT.phrase_table['Absichten']
 
@@ -29,6 +31,13 @@ class TestPhraseTable(unittest.TestCase):
     def test_that_all_keys_are_unique(self):
         s = [ k["target"] for k in self.PT.getEntry("Absichten") ]
         self.failUnless(len(s) == len(frozenset(s)))
+
+    # Note: shelving won't be as efficient as sqlite3 -- check out sqlalchemy in the future
+    def test_pickle_and_unpickle(self):
+        phrase_table = self.PT.getTable()
+        pickle.dump(phrase_table, open('test_phrase_table.db', 'w'))
+        test_pt = pickle.load(open('test_phrase_table.db','r'))
+        self.assertTrue(len(test_pt["Absichten"]) > 2, "Test that the field for \"Absichten\" is not empty in the unshelved object")
 
 if __name__ == '__main__':
     unittest.main()
