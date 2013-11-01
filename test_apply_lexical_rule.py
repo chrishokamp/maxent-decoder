@@ -17,7 +17,6 @@ class TestLexicalRule(unittest.TestCase):
     def setUp(self):
         test_sen = ["Sample", "sentences", "are", "always", "really", "dumb", "."]
         self.test_phrases = seg.all_phrases(test_sen, len(test_sen))
-
         # small map
         #self.phrase_table = pickle.load(open('phrase_table/test_phrase_table.db'))
         # big map
@@ -32,14 +31,18 @@ class TestLexicalRule(unittest.TestCase):
         de_test_sen = ["Akteure", "haben", "Aktien"]
         # print the mappings for each phrase
         for i, level in enumerate(seg.all_phrases(de_test_sen,len(de_test_sen))):
-            print "FOR LEVEL: %i" % i
+            #print "FOR LEVEL: %i" % i
             for j, phrase in enumerate(level):
                  index = "[" + str(i) + ", " + str(j) + "]"
-                 print "PHRASE INDEX: %s" % index
-                 print "FOR FOREIGN PHRASE COVERAGE: %s" % phrase
+                 #print "PHRASE INDEX: %s" % index
+                 #print "FOR FOREIGN PHRASE COVERAGE: %s" % phrase
                  key = " ".join(phrase) #TODO: hack? -- depends upon tokenization methods
                  # print "\tThe mappings are: %s" % str(self.phrase_table[key])
                  print "\tThe mappings are: %s" % str([(x["target"], x["e|f"]) for x in self.phrase_table[key]])
+
+    def test_lexical_rule_application(self):
+        # segments should be put in the proper spot into the table
+        pass
 
 if __name__ == '__main__':
     unittest.main()

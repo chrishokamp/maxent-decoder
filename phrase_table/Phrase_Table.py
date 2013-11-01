@@ -41,6 +41,12 @@ class Phrase_Table:
     def getEntry(self, phrase):
         return self.phrase_table[phrase]
 
+    def contains(self, phrase):
+        if self.phrase_table[phrase] != []:
+            return True
+        else:
+            return False
+
     def getTable(self):
         return self.phrase_table
 

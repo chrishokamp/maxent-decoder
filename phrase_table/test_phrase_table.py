@@ -32,7 +32,7 @@ class TestPhraseTable(unittest.TestCase):
         s = [ k["target"] for k in self.PT.getEntry("Absichten") ]
         self.failUnless(len(s) == len(frozenset(s)))
 
-    # Note: shelving won't be as efficient as sqlite3 -- check out sqlalchemy in the future
+    # Note: pickling won't be as efficient as sqlite3 -- check out sqlalchemy in the future
     def test_pickle_and_unpickle(self):
         phrase_table = self.PT.getTable()
         pickle.dump(phrase_table, open('test_phrase_table.db', 'w'))
