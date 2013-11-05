@@ -8,6 +8,8 @@ class Phrase_Table:
     # TODO: unit names should actually be objects with sub-fields
     def __init__(self, lines, unit_names):
         self.phrase_table = self.build_phrase_table(lines, unit_names)
+        # store the field names in case we need them later
+        self.field_names
 
     def build_phrase_table(self, lines, unit_names):
         line_units = [line.split('|||') for line in lines]
