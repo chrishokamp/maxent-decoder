@@ -8,6 +8,7 @@ def all_phrases(phrase, max_len):
     # TODO: each field contains multiple values which are objects of their own
     for i in range(1, max_len):
         phrase_list.append([phrase[j:j+i] for j in xrange(len(phrase)-i+1)])
+    phrase_list.append([phrase])
     return phrase_list
 
 

@@ -8,38 +8,65 @@ import ipdb as ipdb
 
 import segment_phrases.segment_phrases as seg
 import cky as cky
+import phrase_table.DB_Phrase_Table as DB_Phrase_Table
 from pprint import pprint
 
 #for tests -- TODO: segmentation is dangerous
 #from nltk.tokenize import word_tokenize
 
+# STEPS:
+#   tokenize a sentence
+#   get all of its phrases
+#   put them into their place in the phrase table
+#   THEN:
+#   fill the table -- INCLUDING CELLS in upper tiers which already have lexical rule applications
+#       - for upper rows, the lexical rule is just another option in that cell
+#       - TODO: THINK -- why don't I like storing derivations in a list?
+#       - should it actually be a stack??
+
 class TestCKY(unittest.TestCase):
 
     # setup -- create a new CKY instance
     def setUp(self):
-        # STEPS:
-        #   tokenize a sentence
-        #   get all of its phrases
-        #   put them into their place in the phrase table
-        #   THEN:
-        #   fill the table -- INCLUDING CELLS in upper tiers which already have lexical rule applications
-        #       - for upper rows, the lexical rule is just another option in that cell
-        #       - TODO: THINK -- why don't I like storing derivations in a list?
-        #       - should it actually be a stack??
-        test_sen = [ "Akteure", "haben", "Aktien" ]
+        # test_sen = [ "Akteure", "haben", "Aktien" ]
+        # test_sen = [ "ist", "nicht", "gekommen" ]
+        test_sen = [ "aber", "das", "ist", "nicht" ]
         self.test_sen = test_sen
         sentence_phrases = seg.all_phrases(test_sen, len(test_sen))
         self.sentence_phrases = sentence_phrases
 
         #phrase_table = test_pt = pickle.load(open('../phrase_table/test_phrase_table.db','r'))
-        phrase_table = test_pt = pickle.load(open('../phrase_table/big_phrase_table.db','r'))
+        #phrase_table = test_pt = pickle.load(open('../phrase_table/big_phrase_table.db','r'))
 
-        self.cky_parser = cky.CKY(sentence_phrases, phrase_table)
+        # init. DB_Phrase_Table
+        dbPT = DB_Phrase_Table.DB_Phrase_Table('../phrase_table/phrase_table_sqlite.db')
+        self.dbPT = dbPT
+        self.cky_parser = cky.CKY(sentence_phrases, dbPT)
 
     def test_fill_table(self):
         initial_parse_table = self.cky_parser.parse_table
-        for i in range(1,len(self.test_sen)+1):
-            print initial_parse_table[i,i]
+
+        # if DB contains a derivation for (i,j), then i,j should not be empty in the DB
+        phrases = self.sentence_phrases
+        sen_length = len(phrases[0])
+        for index,l in enumerate(phrases):
+            for i, j, p in zip(range(1, len(l)+1), range(index+1, sen_length+1), l):
+                phrase = " ".join(p)
+                print "CURRENT PHRASE IS: %s" % phrase
+                if self.dbPT.get_all_matches((phrase,)) is not None:
+                    self.assertTrue(len(initial_parse_table[(i,j)]) > 0, "if DB contains a derivation for (i,j), then i,j should not be empty in the DB")
+
+    def test_lexical_rule(self):
+        # if DB contains a derivation for (i,j), then i,j should not be empty in the DB
+        phrase = " ".join(["er", "ist"])
+        print "\n\nCURRENT PHRASE IS: %s" % phrase
+        db_phrases = self.dbPT.get_all_matches((phrase,))
+        if db_phrases is not None:
+            for english_phrase in db_phrases:
+                print "\tENGLISH PHRASE IS: %s" % english_phrase['target']
+                lex_rule_score = self.cky_parser.apply_lexical_rule(english_phrase)
+                print "LEXICAL RULE SCORE: "
+                print "\t\t" + str(lex_rule_score)
 
 #    def test_rule_map(self):
 #        rules = self.grammar["rules"]

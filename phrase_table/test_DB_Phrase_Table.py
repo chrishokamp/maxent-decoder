@@ -36,6 +36,18 @@ class TestDBPhraseTable(unittest.TestCase):
 
         self.assertTrue(a_match['target'] is not None, "We should be able to query rows using dict syntax")
 
+    def test_empty_match(self):
+        # do the query
+        self.dbPT.select_with_cursor(('xqzxqzxqz',))
+        # grab a result
+        a_match = self.dbPT.c.fetchone()
+        print "PRINTING type of EMPTY RESULT - Expect = NoneType"
+        print type(a_match)
+        if a_match is None:
+            print "a_match is NoneType, that's what we want"
+
+        self.assertTrue(a_match is None, "A query for a phrase that doesn't exist in the DB should return None")
+
 if __name__ == '__main__':
     unittest.main()
 

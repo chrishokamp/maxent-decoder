@@ -3,31 +3,49 @@
 
 # from collections import Counter
 from collections import defaultdict
+import numpy as np
+import phrase_table.DB_Phrase_Table
+import lm.lm as lm
+import preprocess.tokenizer as tokenizer
 # import ipdb
-# import itertools
 
 #   - A CKY chart is generated for EVERY SENTENCE that we want to translate
 class CKY:
-    def __init__(self, sentence_phrases, phrase_table):
-        self.phrases = phrase_table
-        self.parse_table = self.fill_table(sentence_phrases) # is this the right structure?
+    def __init__(self, sentence_phrases, db_phrase_table):
+        self.dbPT = db_phrase_table
+        self.parse_table = self.fill_table(sentence_phrases)
 
-    # parsing CKY should start by initializing the lexical rule applications that exist in our table
-    # there are no rules -- any phrase can be combined, we're just looking for the top-scoring one
+    # parsing starts by initializing the lexical rule applications that exist in our table
+    # there are no rules -- any phrase can be combined, we're just looking for the top-scoring ones
     def fill_table(self, sentence_phrases):
         parse_table = defaultdict(list)
-        for level in sentence_phrases:
-            for i, phrase in zip(range(1,len(level)+1), level):
+        sen_length = len(sentence_phrases[0])
+        for level_index, level in enumerate(sentence_phrases):
+            for i, j, phrase in zip(range(1,len(level)+1), range(level_index+1, sen_length+1), level):
                 p = " ".join(phrase)
-                #print "i: %i, phrase: %s" % (i, p)
-                if self.phrases[p] != []:
-                    # TODO: update Parse Table to a faster data structure
-                    parse_table[(i,i)] = self.phrases[p]
+                all_matches = self.dbPT.get_all_matches((p,))
+                if all_matches is not None:
+                    parse_table[(i,j)] = all_matches
+                    # working: calculate the score of the lexical trule for this phrase
 
         return parse_table
 
-    #def apply_lexical_rule(sentence_phrases):
+    # TODO: we need to learn weights for all of these features
+    def apply_lexical_rule(self, db_row):
 
+        # TODO: add PHRASE PENALTY, and WORD PENALTY
+        fe = db_row['fe']
+        ef = db_row['ef']
+        lex_fe = db_row['lex_fe']
+        lex_ef = db_row['lex_ef']
+        # TODO: push tokenization into the DB
+        lm_score = lm.get_lm_score(tokenizer.tokenize(db_row['target']))
+        #features = {'fe':fe , 'ef':ef, 'lex_fe':lex_fe, 'lex_ef':lex_ef, 'lm_score':lm_score}
+
+        lex_rule_score = np.log(fe) + np.log(ef) + np.log(lex_fe) + np.log(lex_ef) + lm_score
+        return lex_rule_score
+
+#   Parsing happens after the lexical rule has been applied
 #    def parse(self, lexical_map):
 #        parse_table = defaultdict(list) # is this the right structure
 #        num_columns = len(tokens)

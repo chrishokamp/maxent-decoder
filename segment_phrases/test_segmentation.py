@@ -18,7 +18,7 @@ class TestPhraseSegmentation(unittest.TestCase):
     def test_phrases(self):
         phrases = self.phrases
         len_list = [len(x) for x in phrases]
-        self.assertListEqual(len_list, [7,6,5,4,3,2], "The lists of phrases should be the right size")
+        self.assertListEqual(len_list, [7,6,5,4,3,2,1], "The lists of phrases should be the right size")
 
 if __name__ == '__main__':
     unittest.main()
