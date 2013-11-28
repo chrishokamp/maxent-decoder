@@ -12,7 +12,7 @@ import phrase_table.DB_Phrase_Table as DB_Phrase_Table
 from pprint import pprint
 
 #for tests -- TODO: segmentation is dangerous
-#from nltk.tokenize import word_tokenize
+import preprocess.tokenizer as tokenizer
 
 # STEPS:
 #   tokenize a sentence
@@ -26,13 +26,32 @@ class TestCKY(unittest.TestCase):
 
     # setup -- create a new CKY instance
     def setUp(self):
+
+        #TEST SENTENCE BUFFER
         # test_sen = [ "Akteure", "haben", "Aktien" ]
         # test_sen = [ "ist", "nicht", "gekommen" ]
         # test_sen = [ "aber", "das", "ist", "nicht" ]
 
         #TODO: this one makes tests fail: test_sen = [ "er", "ist", "aber", "super", "klug" ]
         #test_sen = [ "er", "ist", "wirklich", "sehr", "klug" ]
-        test_sen = [ "Die", "Frau", "ist", "wirklich", "sehr", "dumm" ]
+        #TODO: this one has unknown token(s) --> Frauenquote
+        # test_sen = [ "Die", "gesetzliche", "Frauenquote", "beschleunigt", "den", "Wandel", "in", "deutschen", "Konzernen", "." ]
+
+        #test_sen = [ "Die", "Frau", "ist", "wirklich", "sehr", "klug" ]
+        #test_sen = [ "Der", "Direktor", "bedankte", "sich", "bei", "die", "Frau", "." ]
+        #test_sen = [ "Ich", "habe", "mich", "in", "ihn", "verliebt", "." ]
+        #test_sen = [ "Meine", "Kinder", "haben", "Schreiben", "gelernt", "." ]
+        #test_sen = [ "Das", "Programm", "wird", "zum", "ersten", "Testfall", "." ]
+
+        #TODO: this throws an error because of character encodings -- "für"
+        #test_sen = [ "Das", "Programm", "für", "die", "Europawahl", "wird", "zum", "ersten", "Testfall", "." ]
+
+        # test_sen = tokenizer.tokenize("Meine Kinder haben Schreiben gelernt." )
+        #test_sen = tokenizer.tokenize("Ich liebe dich" )
+        #test_sen = tokenizer.tokenize("Er kennt mich aus der Schule." )
+        test_sen = tokenizer.tokenize("Ich kenne dich" )
+        # END TEST SENTENCE BUFFER
+
         self.test_sen = test_sen
         sentence_phrases = seg.all_phrases(test_sen, len(test_sen))
         self.sentence_phrases = sentence_phrases
@@ -52,7 +71,7 @@ class TestCKY(unittest.TestCase):
         for index,l in enumerate(phrases):
             for i, j, p in zip(range(1, len(l)+1), range(index+1, sen_length+1), l):
                 phrase = " ".join(p)
-                print "CURRENT PHRASE IS: %s" % phrase
+                #print "CURRENT PHRASE IS: %s" % phrase
                 if self.dbPT.get_all_matches((phrase,)):
                     #print self.dbPT.get_all_matches((phrase,))
                     self.assertTrue(len(initial_parse_table[(i,j)]) > 0, "if DB contains a derivation for (i,j), then i,j should not be empty in the DB")
@@ -79,42 +98,15 @@ class TestCKY(unittest.TestCase):
     # TODO: doesn't test anything!
     def test_lexical_rule(self):
         phrase = " ".join(["er", "ist"])
-        print "\n\nCURRENT PHRASE IS: %s" % phrase
+        #print "\n\nCURRENT PHRASE IS: %s" % phrase
         db_phrases = self.dbPT.get_all_matches((phrase,))
         if db_phrases is not None:
             for english_phrase in db_phrases:
-                print "\tENGLISH PHRASE IS: %s" % english_phrase['target']
+                #print "\tENGLISH PHRASE IS: %s" % english_phrase['target']
                 lex_rule_score = self.cky_parser.apply_lexical_rule(english_phrase)
-                print "LEXICAL RULE SCORE: "
-                print "\t\t" + str(lex_rule_score)
+                #print "LEXICAL RULE SCORE: "
+                #print "\t\t" + str(lex_rule_score)
 
-#    def test_rule_map(self):
-#        rules = self.grammar["rules"]
-#        rule_map = self.cky_parser.rule_map(rules)
-#        self.assertSetEqual(frozenset(rule_map[("Verb", "NP")]), frozenset(["VP", "S", "X2"]), "Tuple derivation keys should map to nonterminals")
-#
-#    # first test: the parser succeeds at finding an "S" at [0, len_sentence]
-#    def test_parser(self):
-#        tokenized = ["START", "a", "flight", "from", "houston", "landed"]
-#        lexical_map = self.cky_parser.words_to_units(self.grammar["lexicon"])
-#        rule_map = self.cky_parser.rule_map(self.grammar["rules"])
-#        parse_table = self.cky_parser.parse(tokenized, lexical_map, rule_map)
-#
-#        # test the table entries for "Houston" - NOTE: this test relies upon the order of items
-#        self.assertListEqual([x["label"] for x in parse_table[(3, 4)]],["NP","Proper-Noun"], "The parser should resolve words to their nonterminals")
-#
-#    def test_parsing_workflow(self):
-#        s = "Book the flight through Houston"
-#        toks = self.cky_parser.preprocess(s)
-#        lexical_map = self.cky_parser.words_to_units(self.grammar["lexicon"])
-#        rule_map = self.cky_parser.rule_map(self.grammar["rules"])
-#        parse_table = self.cky_parser.parse(toks, lexical_map, rule_map)
-#        s_labels = [ x["source"]["index"] for x in filter(lambda x: x["label"] == "S", parse_table[(0,5)]) ]
-#        correct_labels = [((0, 1), (1, 5)), ((0, 3), (3, 5)), ((0, 3), (3, 5))]
-#
-#        self.assertSetEqual(frozenset(s_labels), frozenset(correct_labels), "The parser should find three sentences at (0, num_tokens)")
-#        #pprint(parse_table)
-#
 #    # TODO: parser needs to point to the cell AND the symbol that generated it in that cell
 #    def test_return_all_derivations(self):
 #        # for each S in [0, len(S)], follow backpointers recursively to get all derivations with this S as root

@@ -8,7 +8,6 @@ import numpy as np
 import phrase_table.DB_Phrase_Table
 import lm.lm as lm
 import preprocess.tokenizer as tokenizer
-# import ipdb
 
 #   - A CKY chart is generated for EVERY SENTENCE that we want to translate
 # parsing starts by initializing the lexical rule applications that exist in our table
@@ -86,7 +85,7 @@ class CKY:
                         right_phrases = [d.phrase for d in self.parse_table[(right_i,j)]]
                         right_derivations = self.parse_table[(right_i,j)]
                         # TODO: every new pair must become a new derivation object
-                        # TODO: temporary hack to get some output
+                        # TODO: temporary hack to get some output -- pruned at 100 for efficiency
                         all_pairs = list(itertools.product(left_derivations, right_derivations)) + list(itertools.product(right_derivations, left_derivations))
 
                         all_phrases = [tokenizer.tokenize(str(l.phrase + " " + r.phrase)) for l,r in all_pairs]
@@ -98,7 +97,12 @@ class CKY:
                         new_scores = [(lm.get_lm_score(phrase) + pair[0].score + pair[1].score) for phrase, pair in phrases_and_derivations]
                         scores_and_phrases = zip(all_phrases, new_scores)
                         all_derivations = [Derivation(" ".join(p),s) for p,s in scores_and_phrases]
+
+                        # TODO: merge phrases which begin and end in the same token
+
+                        # NOTE: includes 20 cutoff hack for efficiency
                         derivations_by_score = sorted(all_derivations, key=lambda d: d.score)[::-1][:20]
+
                         self.parse_table[(i,j)] += derivations_by_score[:top_n]
 
                         print "HERE ARE THE TOP 20 NEW DERIVATIONS FOR CELL %i,%i" % (i,j)
@@ -125,56 +129,3 @@ class Derivation:
     def toString(self):
         return "{ \"phrase\": \"%s\", \"score\": %f }" % (self.phrase, self.score)
 
-#   Parsing happens after the lexical rule has been applied
-#    def parse(self, lexical_map):
-#        parse_table = defaultdict(list) # is this the right structure
-#        num_columns = len(tokens)
-#        for j in range(1, num_columns, 1):
-#            leaf_symbols = lexical_map[tokens[j]]
-#            for sym in leaf_symbols:
-#                parse_table[(j-1, j)].append({"label": sym, "source": "leaf"})
-#            for i in range(j-2, -1, -1):
-#                for k in range(i+1, j):
-#                    #ipdb.set_trace()
-#                    if len(parse_table[i,k]) > 0 and len(parse_table[k,j]) > 0:
-#                        B = [nonterm["label"] for nonterm in parse_table[i,k]]
-#                        C = [nonterm["label"] for nonterm in parse_table[k,j]]
-#                        pairs = list(itertools.product(B,C))
-#                        new_derivations = []
-#
-#                        for pair in pairs:
-#                            try:
-#                                nonterms = rule_map[pair]
-#                                for nonterm in nonterms:
-#                                    left_symbol = pair[0]
-#                                    right_symbol = pair[1]
-#                                    new_derivations.append( {"label":nonterm, "source":{"index": ((i,k), (k,j)), "L_sym": left_symbol, "R_sym": right_symbol} })
-#                            except KeyError:
-#                                pass
-#                        union = parse_table[i,j] + new_derivations
-#                        parse_table[i,j] = union
-#        return parse_table
-#
-#    def preprocess(self, sentence):
-#        toks = map (lambda t: t.lower(), self.tokenizer(sentence))
-#        toks.insert(0, 'START')
-#        no_punct = filter(lambda word: word not in ',-.', toks)
-#        return no_punct
-#
-#    # flip the lexicon
-#    def words_to_units(self, lexicon):
-#        words_to_nonterms = defaultdict(list)
-#        for nonterm, wordlist in lexicon.items():
-#            for word in wordlist:
-#                words_to_nonterms[word].append(nonterm)
-#        return words_to_nonterms
-#
-#    # flip the rule map --> keys are tuples (A,B)
-#    def rule_map(self, rules):
-#        rule_map = defaultdict(list)
-#        for nonterm, derivations in rules.items():
-#            for derivation in derivations:
-#                rule_map[tuple(derivation)].append(nonterm)
-#        return rule_map
-
-#if __
