@@ -22,6 +22,7 @@ class CKY:
         self.dbPT = db_phrase_table
         self.sen_length = len(sentence_phrases[0])
         self.parse_table = self.initialize_table(sentence_phrases)
+        self.phrases = sentence_phrases
 
     def initialize_table(self, sentence_phrases):
         parse_table = defaultdict(list)
@@ -73,10 +74,6 @@ class CKY:
                 # get all of the derivations
                 num_pairs = level-1
                 for left_j,right_i in zip(range(1, j)[-num_pairs:], range(i+1, num_cols+1)):
-                    # TODO: write a test for the cell pairs
-                    #print "CELL PAIR:"
-                    #print "Left cell: (%i,%i)" % (i,left_j)
-                    #print "Right cell: (%i,%i)" % (right_i,j)
 
                     if self.parse_table[(i,left_j)] and self.parse_table[(right_i,j)]:
                         #print "BOTH CELLS CONTAIN DERIVATIONS"
@@ -117,7 +114,10 @@ class CKY:
 
         #we're finished now, so check the top 10 derivations in (1, num_cols)
         best_translations = sorted(self.parse_table[(1,num_cols)], key=lambda d: d.score)[::-1][:20]
+        sentence = " ".join(self.phrases[-1][-1])
+        print "The source sentence was: \"%s\"" % sentence
         print "HERE ARE THE BEST FINAL TRANSLATIONS IN CELL (1,%i) " % num_cols
+
         for n,t in enumerate(best_translations):
             print "%i: %s\n\tSCORE: %f " % (n,t.phrase,t.score)
 

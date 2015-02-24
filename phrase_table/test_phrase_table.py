@@ -12,7 +12,6 @@ from pprint import pprint
 
 class TestPhraseTable(unittest.TestCase):
 
-    # setup -- create a new CKY instance
     def setUp(self):
         lines = [line.strip() for line in open('tiny_phrase_table', 'r').readlines()]
         # the structure of the fields is: ["target", "scores", "alignment", "counts"]

@@ -4,7 +4,6 @@
 from nltk.tokenize import word_tokenize
 
 '''
-Author: Chris Hokamp
     - return a tokenized sentence
 '''
 

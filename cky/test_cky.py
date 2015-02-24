@@ -11,7 +11,6 @@ import cky as cky
 import phrase_table.DB_Phrase_Table as DB_Phrase_Table
 from pprint import pprint
 
-#for tests -- TODO: segmentation is dangerous
 import preprocess.tokenizer as tokenizer
 
 # STEPS:
@@ -49,7 +48,8 @@ class TestCKY(unittest.TestCase):
         # test_sen = tokenizer.tokenize("Meine Kinder haben Schreiben gelernt." )
         #test_sen = tokenizer.tokenize("Ich liebe dich" )
         #test_sen = tokenizer.tokenize("Er kennt mich aus der Schule." )
-        test_sen = tokenizer.tokenize("Ich kenne dich" )
+        #test_sen = tokenizer.tokenize("Ich kenne dich" )
+        test_sen = tokenizer.tokenize("Ich habe mit ihm gesprochen." )
         # END TEST SENTENCE BUFFER
 
         self.test_sen = test_sen
